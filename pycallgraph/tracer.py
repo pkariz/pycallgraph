@@ -103,6 +103,15 @@ class TraceProcessor(Thread):
         self.call_stack_memory_in = []
         self.call_stack_memory_out = []
 
+
+        # Keep track of call orders
+        self._next_call_order = 1
+        self.call_order = {}
+
+    def get_next_call_order(self):
+        self._next_call_order += 1
+        return self._next_call_order - 1
+
     def init_libpath(self):
         self.lib_path = sysconfig.get_python_lib()
         path = os.path.split(self.lib_path)
@@ -217,6 +226,9 @@ class TraceProcessor(Thread):
                 self.call_dict[src_func][full_name] += 1
 
                 self.func_count[full_name] += 1
+
+                self.call_order[full_name] = self.get_next_call_order()
+
                 self.func_count_max = max(
                     self.func_count_max, self.func_count[full_name]
                 )
@@ -309,6 +321,10 @@ class TraceProcessor(Thread):
         stat_group.memory_out = Stat(
             self.func_memory_in.get(func, 0), self.func_memory_in_max
         )
+        try:
+            stat_group.call_order = self.call_order[func]
+        except:
+            stat_group.call_order = 0
         return stat_group
 
     def nodes(self):

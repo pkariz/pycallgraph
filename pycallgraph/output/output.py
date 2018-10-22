@@ -42,6 +42,7 @@ class Output(object):
             '{0.name}',
             'calls: {0.calls.value:n}',
             'time: {0.time.value:f}s',
+            'call_order: {0.call_order}',
         ]
 
         if self.processor.config.memory:
